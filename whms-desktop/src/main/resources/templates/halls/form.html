@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <th:block th:replace="~{fragments/common :: assets}"></th:block>
+  <title>Salla — Pallati i Dasmave</title>
+</head>
+<body>
+<div id="appShell">
+  <div th:replace="~{fragments/common :: sidebar('halls')}"></div>
+  <div class="main">
+    <div class="topbar no-print">
+      <div><h2 th:text="${hall.id != null ? 'Ndrysho Sallën' : 'Sallë e Re'}"></h2></div>
+      <a class="btn btn-ghost btn-sm" th:href="@{/halls}">← Kthehu te Sallat</a>
+    </div>
+    <div class="content" style="max-width:560px;">
+      <div class="card">
+        <form th:action="@{/halls/save}" th:object="${hall}" method="post">
+          <input type="hidden" th:field="*{id}"/>
+          <div class="field"><label>Emri i Sallës</label><input type="text" th:field="*{name}" required="required"/></div>
+          <div class="row">
+            <div class="field"><label>Kapaciteti Maksimal</label><input type="number" min="1" th:field="*{capacity}" required="required"/></div>
+            <div class="field"><label>Statusi</label>
+              <select th:field="*{status}">
+                <option value="AKTIVE">Aktive</option>
+                <option value="JOAKTIVE">Joaktive</option>
+              </select>
+            </div>
+          </div>
+          <div class="field"><label>Përshkrimi</label><textarea rows="3" th:field="*{description}"></textarea></div>
+          <button class="btn btn-primary" type="submit">Ruaj</button>
+          <a class="btn btn-ghost" th:href="@{/halls}">Anulo</a>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+</body>
+</html>

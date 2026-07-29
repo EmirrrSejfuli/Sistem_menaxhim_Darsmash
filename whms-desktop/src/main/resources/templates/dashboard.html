@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <th:block th:replace="~{fragments/common :: assets}"></th:block>
+  <title>Paneli — Pallati i Dasmave</title>
+</head>
+<body>
+<div id="appShell">
+  <div th:replace="~{fragments/common :: sidebar('dashboard')}"></div>
+  <div class="main">
+    <div class="topbar no-print">
+      <div><h2>Paneli</h2><div class="sub">Përmbledhje e aktivitetit të biznesit</div></div>
+    </div>
+    <div class="content">
+      <div th:replace="~{fragments/common :: alerts}"></div>
+
+      <div class="grid g4" style="margin-bottom:18px;">
+        <div class="card stat-card"><div class="label">Eventet Sot</div><div class="value wine" th:text="${todaysCount}">0</div></div>
+        <div class="card stat-card"><div class="label">Eventet Këtë Javë</div><div class="value" th:text="${weeklyCount}">0</div></div>
+        <div class="card stat-card"><div class="label">Sallat e Disponueshme</div><div class="value ok" th:text="${availableHalls} + '/' + ${totalHalls}">0/0</div></div>
+        <div class="card stat-card"><div class="label">Rezervime Këtë Muaj</div><div class="value" th:text="${monthlyCount}">0</div></div>
+      </div>
+
+      <div class="grid g4" style="margin-bottom:18px;">
+        <div class="card stat-card"><div class="label">Të Ardhura (Muaji)</div><div class="value ok" th:text="${#numbers.formatDecimal(monthlyRevenue,1,2)} + ' €'">0 €</div></div>
+        <div class="card stat-card"><div class="label">Shpenzime (Muaji)</div><div class="value warn" th:text="${#numbers.formatDecimal(monthlyExpenses,1,2)} + ' €'">0 €</div></div>
+        <div class="card stat-card"><div class="label">Fitimi Neto (Muaji)</div><div class="value" th:classappend="${netProfit.signum() >= 0} ? ' ok' : ' wine'" th:text="${#numbers.formatDecimal(netProfit,1,2)} + ' €'">0 €</div></div>
+        <div class="card stat-card"><div class="label">Pagesa në Pritje</div><div class="value warn" th:text="${#numbers.formatDecimal(pendingTotal,1,2)} + ' €'">0 €</div></div>
+      </div>
+
+      <div class="grid g2" style="margin-bottom:18px;align-items:stretch;">
+        <div class="card">
+          <h3>Grafiku i të Ardhurave (6 Muajt e Fundit)</h3>
+          <div style="display:flex;align-items:flex-end;gap:14px;height:150px;padding-top:10px;">
+            <div th:each="point : ${chart}" style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;">
+              <div style="font-size:10.5px;color:var(--text-dim);margin-bottom:4px;" th:text="${point.value.signum() > 0 ? #numbers.formatInteger(point.value,1) : ''}"></div>
+              <div th:style="'width:100%;max-width:34px;background:linear-gradient(180deg,var(--gold),var(--wine));border-radius:4px 4px 0 0;height:' + ${point.percent} + '%;'"></div>
+              <div style="font-size:11px;color:var(--text-dim);margin-top:6px;text-transform:capitalize;" th:text="${point.label}"></div>
+            </div>
+          </div>
+        </div>
+        <div class="card">
+          <h3>Statistika</h3>
+          <table>
+            <tr><td>Total Pagesa të Marra</td><td style="text-align:right;font-weight:600;" th:text="${#numbers.formatDecimal(totalReceived,1,2)} + ' €'"></td></tr>
+            <tr><td>Menuja më e Zgjedhur</td><td style="text-align:right;font-weight:600;" th:text="${topMenu}"></td></tr>
+            <tr><td>Salla më e Rezervuar</td><td style="text-align:right;font-weight:600;" th:text="${topHall}"></td></tr>
+            <tr><td>Total Rezervime (gjithsej)</td><td style="text-align:right;font-weight:600;" th:text="${totalReservations}"></td></tr>
+          </table>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>Rezervimet e Fundit</h3>
+        <table th:if="${not #lists.isEmpty(recent)}">
+          <thead><tr><th>Nr.</th><th>Klienti</th><th>Data</th><th>Salla</th><th>Statusi</th><th>Pagesa</th></tr></thead>
+          <tbody>
+            <tr class="clickable" th:each="r : ${recent}" th:onclick="'window.location=\'' + @{'/reservations/' + ${r.id}} + '\''">
+              <td th:text="${r.reservationNumber}"></td>
+              <td th:text="${r.customerFirstName} + ' ' + ${r.customerLastName}"></td>
+              <td th:text="${#temporals.format(r.eventDate, 'dd.MM.yyyy')}"></td>
+              <td th:text="${r.hall != null ? r.hall.name : '—'}"></td>
+              <td><span class="badge" th:classappend="'badge-' + ${r.status}" th:text="${r.status}"></span></td>
+              <td><span class="badge" th:classappend="${r.paymentStatus == 'E paguar plotesisht' ? 'badge-paid' : (r.paymentStatus == 'Pjeserisht e paguar' ? 'badge-partial' : 'badge-unpaid')}" th:text="${r.paymentStatus}"></span></td>
+            </tr>
+          </tbody>
+        </table>
+        <div class="empty" th:if="${#lists.isEmpty(recent)}"><div class="ic">&#9670;</div>Ende nuk ka rezervime të regjistruara.</div>
+      </div>
+    </div>
+  </div>
+</div>
+</body>
+</html>

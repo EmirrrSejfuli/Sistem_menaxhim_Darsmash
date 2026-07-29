@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <th:block th:replace="~{fragments/common :: assets}"></th:block>
+  <title>Kërkimi — Pallati i Dasmave</title>
+</head>
+<body>
+<div id="appShell">
+  <div th:replace="~{fragments/common :: sidebar('search')}"></div>
+  <div class="main">
+    <div class="topbar no-print">
+      <div><h2>Kërkimi</h2><div class="sub">Gjej rezervime sipas emrit ose datës</div></div>
+    </div>
+    <div class="content">
+      <div class="card">
+        <form th:action="@{/search}" method="get">
+          <div class="row">
+            <div class="field"><label>Emri</label><input type="text" name="firstName" th:value="${firstName}" placeholder="Emri i klientit"/></div>
+            <div class="field"><label>Mbiemri</label><input type="text" name="lastName" th:value="${lastName}" placeholder="Mbiemri i klientit"/></div>
+            <div class="field"><label>Data e Eventit</label><input type="date" name="eventDate" th:value="${eventDate}"/></div>
+          </div>
+          <button class="btn btn-primary" type="submit">Kërko</button>
+        </form>
+      </div>
+
+      <div style="margin-top:16px;">
+        <div class="card" style="padding:0;" th:if="${hasQuery and not #lists.isEmpty(results)}">
+          <table>
+            <thead><tr><th>Nr.</th><th>Klienti</th><th>Data e Eventit</th><th>Salla</th><th>Lloji</th><th></th></tr></thead>
+            <tbody>
+              <tr class="clickable" th:each="r : ${results}" th:onclick="'window.location=\'' + @{'/reservations/' + ${r.id}} + '\''">
+                <td th:text="${r.reservationNumber}"></td>
+                <td th:text="${r.customerFirstName} + ' ' + ${r.customerLastName}"></td>
+                <td th:text="${#temporals.format(r.eventDate, 'dd.MM.yyyy')}"></td>
+                <td th:text="${r.hall != null ? r.hall.name : '—'}"></td>
+                <td th:text="${r.eventType}"></td>
+                <td><a class="icon-btn" th:href="@{'/reservations/' + ${r.id}}">Shiko →</a></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="empty" th:if="${hasQuery and #lists.isEmpty(results)}"><div class="ic">&#8981;</div>Asnjë rezultat. Provoni kritere të tjera kërkimi.</div>
+        <div class="empty" th:if="${not hasQuery}"><div class="ic">&#8981;</div>Shkruani emrin, mbiemrin ose zgjidhni një datë për të kërkuar.</div>
+      </div>
+    </div>
+  </div>
+</div>
+</body>
+</html>

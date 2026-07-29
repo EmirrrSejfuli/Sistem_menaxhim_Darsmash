@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <th:block th:replace="~{fragments/common :: assets}"></th:block>
+  <title>Rezervimet — Pallati i Dasmave</title>
+</head>
+<body>
+<div id="appShell">
+  <div th:replace="~{fragments/common :: sidebar('reservations')}"></div>
+  <div class="main">
+    <div class="topbar no-print">
+      <div><h2>Rezervimet</h2><div class="sub">Krijo dhe menaxho rezervimet e eventeve</div></div>
+    </div>
+    <div class="content">
+      <div th:replace="~{fragments/common :: alerts}"></div>
+
+      <div class="toolbar">
+        <div style="font-size:13px;color:var(--text-dim);" th:text="${#lists.size(reservations)} + ' rezervime gjithsej'"></div>
+        <a class="btn btn-primary" th:href="@{/reservations/new}">+ Rezervim i Ri</a>
+      </div>
+
+      <div class="card" style="padding:0;overflow-x:auto;" th:if="${not #lists.isEmpty(reservations)}">
+        <table>
+          <thead><tr><th>Nr.</th><th>Klienti</th><th>Eventi</th><th>Data / Ora</th><th>Salla</th><th>Mysafirë</th><th>Statusi</th><th>Pagesa</th><th></th></tr></thead>
+          <tbody>
+            <tr class="clickable" th:each="r : ${reservations}" th:onclick="'window.location=\'' + @{'/reservations/' + ${r.id}} + '\''">
+              <td><b th:text="${r.reservationNumber}"></b></td>
+              <td th:text="${r.customerFirstName} + ' ' + ${r.customerLastName}"></td>
+              <td th:text="${r.eventType}"></td>
+              <td th:text="${#temporals.format(r.eventDate, 'dd.MM.yyyy')} + (${r.eventTime} != null ? ', ' + ${#temporals.format(r.eventTime, 'HH:mm')} : '')"></td>
+              <td th:text="${r.hall != null ? r.hall.name : '—'}"></td>
+              <td th:text="${r.guests}"></td>
+              <td><span class="badge" th:classappend="'badge-' + ${r.status}" th:text="${r.status}"></span></td>
+              <td><span class="badge" th:classappend="${r.paymentStatus == 'E paguar plotesisht' ? 'badge-paid' : (r.paymentStatus == 'Pjeserisht e paguar' ? 'badge-partial' : 'badge-unpaid')}" th:text="${r.paymentStatus}"></span></td>
+              <td onclick="event.stopPropagation()"><a class="icon-btn" th:href="@{'/reservations/' + ${r.id}}">Shiko →</a></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="empty" th:if="${#lists.isEmpty(reservations)}"><div class="ic">&#9998;</div>Nuk ka rezervime ende. Krijoni rezervimin e parë.</div>
+    </div>
+  </div>
+</div>
+</body>
+</html>

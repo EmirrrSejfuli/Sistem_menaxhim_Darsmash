@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <th:block th:replace="~{fragments/common :: assets}"></th:block>
+  <title>Menutë — Pallati i Dasmave</title>
+</head>
+<body>
+<div id="appShell">
+  <div th:replace="~{fragments/common :: sidebar('menus')}"></div>
+  <div class="main">
+    <div class="topbar no-print">
+      <div><h2>Menutë</h2><div class="sub">Menaxho menutë ushqimore</div></div>
+    </div>
+    <div class="content">
+      <div th:replace="~{fragments/common :: alerts}"></div>
+
+      <div class="toolbar">
+        <div style="font-size:13px;color:var(--text-dim);" th:text="${#lists.size(menus)} + ' menu të krijuara'"></div>
+        <a class="btn btn-primary" th:href="@{/menus/new}">+ Menu e Re</a>
+      </div>
+
+      <div class="grid g3">
+        <div class="card" th:each="m : ${menus}">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;">
+            <h3 style="margin:0;" th:text="${m.name}"></h3>
+            <span class="badge" th:classappend="${m.active} ? 'badge-AKTIVE' : 'badge-JOAKTIVE'" th:text="${m.active} ? 'Aktive' : 'Joaktive'"></span>
+          </div>
+          <div class="form-hint" style="margin:6px 0 10px;" th:text="${m.description}"></div>
+          <div style="font-family:'Fraunces',serif;font-size:20px;color:var(--wine);" th:text="${#numbers.formatDecimal(m.pricePerGuest,1,2)} + ' €'"> <span style="font-size:12px;color:var(--text-dim);font-family:inherit;">/ mysafir</span></div>
+          <div class="section-label">Ushqime</div>
+          <div style="font-size:12.5px;" th:text="${#strings.listJoin(m.foods, ', ')}"></div>
+          <div class="section-label">Pije</div>
+          <div style="font-size:12.5px;" th:text="${#strings.listJoin(m.beverages, ', ')}"></div>
+          <div class="hall-actions">
+            <a class="btn btn-ghost btn-sm" th:href="@{'/menus/' + ${m.id} + '/edit'}">Ndrysho</a>
+            <form th:action="@{'/menus/' + ${m.id} + '/delete'}" method="post" style="display:inline;" onsubmit="return confirm('Të fshihet kjo menu?');">
+              <button class="btn btn-danger btn-sm" type="submit">Fshij</button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</body>
+</html>

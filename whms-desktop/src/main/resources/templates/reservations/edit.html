@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <th:block th:replace="~{fragments/common :: assets}"></th:block>
+  <title>Ndrysho Rezervimin — Pallati i Dasmave</title>
+</head>
+<body>
+<div id="appShell">
+  <div th:replace="~{fragments/common :: sidebar('reservations')}"></div>
+  <div class="main">
+    <div class="topbar no-print">
+      <div><h2>Ndrysho Rezervimin</h2><div class="sub" th:text="${reservation.reservationNumber}"></div></div>
+      <a class="btn btn-ghost btn-sm" th:href="@{'/reservations/' + ${reservation.id}}">← Kthehu</a>
+    </div>
+    <div class="content" style="max-width:640px;">
+      <div class="card">
+        <form th:action="@{'/reservations/' + ${reservation.id} + '/edit'}" method="post">
+          <div class="section-label">Të Dhënat e Klientit</div>
+          <div class="row">
+            <div class="field"><label>Emri</label><input type="text" name="customerFirstName" th:value="${reservation.customerFirstName}" required="required"/></div>
+            <div class="field"><label>Mbiemri</label><input type="text" name="customerLastName" th:value="${reservation.customerLastName}" required="required"/></div>
+          </div>
+          <div class="field"><label>Telefoni</label><input type="text" name="customerPhone" th:value="${reservation.customerPhone}"/></div>
+
+          <div class="section-label">Të Dhënat e Eventit</div>
+          <div class="row">
+            <div class="field"><label>Lloji i Eventit</label>
+              <select name="eventType">
+                <option th:each="t : ${eventTypes}" th:value="${t}" th:selected="${t == reservation.eventType}" th:text="${t}"></option>
+              </select>
+            </div>
+            <div class="field"><label>Salla</label>
+              <select name="hallId">
+                <option th:each="h : ${halls}" th:value="${h.id}" th:selected="${reservation.hall != null and h.id == reservation.hall.id}" th:text="${h.name}"></option>
+              </select>
+            </div>
+          </div>
+          <div class="row">
+            <div class="field"><label>Data</label><input type="date" name="eventDate" th:value="${reservation.eventDate}" required="required"/></div>
+            <div class="field"><label>Ora (format 24-orësh)</label><input type="text" name="eventTime" th:value="${reservation.eventTime != null ? #temporals.format(reservation.eventTime, 'HH:mm') : ''}" pattern="([01][0-9]|2[0-3]):[0-5][0-9]" placeholder="p.sh. 19:00" title="Formati 24-orësh, p.sh. 19:00 ose 09:30"/></div>
+          </div>
+          <div class="row">
+            <div class="field"><label>Mysafirë</label><input type="number" min="1" name="guests" th:value="${reservation.guests}" required="required"/></div>
+            <div class="field"><label>Menuja</label>
+              <select name="menuId">
+                <option th:each="m : ${menus}" th:value="${m.id}" th:selected="${reservation.menu != null and m.id == reservation.menu.id}" th:text="${m.name}"></option>
+              </select>
+            </div>
+          </div>
+          <div class="field"><label>Shënime</label><textarea name="notes" rows="2" th:text="${reservation.notes}"></textarea></div>
+
+          <button class="btn btn-primary" type="submit">Ruaj Ndryshimet</button>
+          <a class="btn btn-ghost" th:href="@{'/reservations/' + ${reservation.id}}">Anulo</a>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+</body>
+</html>

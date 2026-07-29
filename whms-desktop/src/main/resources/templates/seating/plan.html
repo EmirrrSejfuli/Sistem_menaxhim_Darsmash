@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <th:block th:replace="~{fragments/common :: assets}"></th:block>
+  <title>Plani i Uljes — Pallati i Dasmave</title>
+</head>
+<body>
+<div id="appShell">
+  <div th:replace="~{fragments/common :: sidebar('seating')}"></div>
+  <div class="main">
+    <div class="topbar no-print">
+      <div><h2>Plani i Uljes</h2><div class="sub">Organizo tavolinat për çdo sallë</div></div>
+    </div>
+    <div class="content">
+      <div th:if="${#lists.isEmpty(halls)}" class="empty"><div class="ic">&#9638;</div>Krijoni së pari një sallë për të vendosur plan uljeje.</div>
+
+      <div th:if="${not #lists.isEmpty(halls)}">
+        <div class="toolbar">
+          <div>
+            <form th:action="@{/seating}" method="get" style="display:inline;">
+              <select name="hallId" onchange="this.form.submit()" style="padding:8px 12px;border:1px solid var(--line);border-radius:5px;font-weight:600;">
+                <option th:each="h : ${halls}" th:value="${h.id}" th:selected="${selectedHall != null and h.id == selectedHall.id}" th:text="${h.name}"></option>
+              </select>
+            </form>
+            <span class="form-hint" style="margin-left:10px;" th:if="${selectedHall != null}" th:text="'Kapaciteti i sallës: ' + ${selectedHall.capacity}"></span>
+          </div>
+          <div style="display:flex;gap:8px;">
+            <button class="btn btn-ghost" id="addTableBtn">+ Shto Tavolinë</button>
+            <button class="btn btn-gold" onclick="window.print()">🖶 Printo / Ruaj si PDF</button>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="seating-canvas" id="seatCanvas" th:data-hall-id="${selectedHall != null ? selectedHall.id : ''}">
+            <div class="table-el" th:each="t : ${tables}"
+                 th:classappend="${t.shape + ((t.guests != null and t.capacity != null and t.guests > t.capacity) ? ' over' : '')}"
+                 th:style="'left:' + ${t.posX} + 'px;top:' + ${t.posY} + 'px;'"
+                 th:data-id="${t.id}" th:data-name="${t.name}" th:data-capacity="${t.capacity}" th:data-shape="${t.shape}" th:data-guests="${t.guests}">
+              <div class="tn" th:text="${t.name}"></div>
+              <div class="tc" th:text="${t.guests} + '/' + ${t.capacity}"></div>
+            </div>
+          </div>
+          <div class="form-hint" style="margin-top:10px;">💡 Tërhiqni tavolinat me miun për t'i pozicionuar. Kliko mbi një tavolinë për ta ndryshuar ose fshirë.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal per shtim/perditesim tavoline -->
+<div class="overlay no-print" id="overlay" style="position:fixed;inset:0;background:rgba(42,31,34,.45);display:none;align-items:flex-start;justify-content:center;z-index:100;padding:60px 20px;overflow-y:auto;">
+  <div class="card" style="max-width:420px;width:100%;">
+    <h3 id="modalTitle">Tavolinë e Re</h3>
+    <div class="field"><label>Emri i Tavolinës</label><input type="text" id="tName"/></div>
+    <div class="row">
+      <div class="field"><label>Kapaciteti i Uljes</label><input type="number" min="1" id="tCap" value="8"/></div>
+      <div class="field"><label>Forma</label>
+        <select id="tShape">
+          <option value="RRUMBULLAKET">Rrumbullakët</option>
+          <option value="KATROR">Katror</option>
+          <option value="DREJTKENDOR">Drejtkëndor</option>
+        </select>
+      </div>
+    </div>
+    <div class="field"><label>Numri i Mysafirëve të Caktuar</label><input type="number" min="0" id="tGuests" value="0"/></div>
+    <div style="display:flex;justify-content:flex-end;gap:10px;margin-top:10px;">
+      <button class="btn btn-danger" id="deleteTableBtn" style="display:none;margin-right:auto;">Fshij</button>
+      <button class="btn btn-ghost" id="cancelModalBtn">Anulo</button>
+      <button class="btn btn-primary" id="saveTableBtn">Ruaj</button>
+    </div>
+  </div>
+</div>
+
+<script th:src="@{/js/seating.js}"></script>
+</body>
+</html>

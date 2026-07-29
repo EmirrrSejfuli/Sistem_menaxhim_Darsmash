@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <th:block th:replace="~{fragments/common :: assets}"></th:block>
+  <title>Sallat — Pallati i Dasmave</title>
+</head>
+<body>
+<div id="appShell">
+  <div th:replace="~{fragments/common :: sidebar('halls')}"></div>
+  <div class="main">
+    <div class="topbar no-print">
+      <div><h2>Sallat</h2><div class="sub">Menaxho sallat e disponueshme (maksimum 5)</div></div>
+    </div>
+    <div class="content">
+      <div th:replace="~{fragments/common :: alerts}"></div>
+
+      <div class="toolbar">
+        <div style="font-size:13px;color:var(--text-dim);" th:text="${#lists.size(halls)} + ' nga 5 sallat e mundshme jane krijuar'"></div>
+        <a th:if="${canAddMore}" class="btn btn-primary" th:href="@{/halls/new}">+ Shto Sallë</a>
+        <button th:unless="${canAddMore}" class="btn btn-primary" disabled="disabled">+ Shto Sallë</button>
+      </div>
+
+      <div class="grid g3" th:if="${not #lists.isEmpty(halls)}">
+        <div class="card hall-card" th:each="h : ${halls}">
+          <div class="top">
+            <h3 style="margin:0;" th:text="${h.name}"></h3>
+            <span class="badge" th:classappend="'badge-' + ${h.status}" th:text="${h.status}"></span>
+          </div>
+          <div class="cap">Kapaciteti maksimal: <b th:text="${h.capacity}"></b> mysafirë</div>
+          <div class="desc" th:text="${h.description ?: '—'}"></div>
+          <div class="hall-actions">
+            <a class="btn btn-ghost btn-sm" th:href="@{'/halls/' + ${h.id} + '/edit'}">Ndrysho</a>
+            <a class="btn btn-ghost btn-sm" th:href="@{'/seating'(hallId=${h.id})}">Plani i Uljes</a>
+            <form th:action="@{'/halls/' + ${h.id} + '/delete'}" method="post" style="display:inline;" onsubmit="return confirm('Të fshihet kjo sallë?');">
+              <button class="btn btn-danger btn-sm" type="submit">Fshij</button>
+            </form>
+          </div>
+        </div>
+      </div>
+      <div class="empty" th:if="${#lists.isEmpty(halls)}"><div class="ic">&#9634;</div>Nuk ka ende asnjë sallë. Shtoni sallën e parë.</div>
+    </div>
+  </div>
+</div>
+</body>
+</html>

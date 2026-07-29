@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <th:block th:replace="~{fragments/common :: assets}"></th:block>
+  <title>Shpenzimet — Pallati i Dasmave</title>
+</head>
+<body>
+<div id="appShell">
+  <div th:replace="~{fragments/common :: sidebar('expenses')}"></div>
+  <div class="main">
+    <div class="topbar no-print">
+      <div><h2>Shpenzimet</h2><div class="sub">Regjistro shpenzimet e biznesit</div></div>
+    </div>
+    <div class="content">
+      <div th:replace="~{fragments/common :: alerts}"></div>
+
+      <div class="grid g2" style="align-items:start;">
+        <div class="card">
+          <h3>Regjistro Shpenzim të Ri</h3>
+          <form th:action="@{/expenses/save}" method="post">
+            <div class="row">
+              <div class="field"><label>Data</label><input type="date" name="date" th:value="${today}" required="required"/></div>
+              <div class="field"><label>Kategoria</label>
+                <select name="category">
+                  <option th:each="c : ${categories}" th:value="${c}" th:text="${c}"></option>
+                </select>
+              </div>
+            </div>
+            <div class="row">
+              <div class="field"><label>Shuma (€)</label><input type="number" step="0.01" min="0" name="amount" required="required"/></div>
+              <div class="field"><label>Metoda e Pagesës</label>
+                <select name="method">
+                  <option th:each="m : ${methods}" th:value="${m}" th:text="${m}"></option>
+                </select>
+              </div>
+            </div>
+            <div class="field"><label>Përshkrimi</label><textarea name="description" rows="2"></textarea></div>
+            <div class="field"><label>Bashkëngjitje (emri i skedarit — opsionale)</label><input type="text" name="attachment" placeholder="p.sh. fature_123.pdf"/></div>
+            <button class="btn btn-primary btn-block" type="submit">Ruaj Shpenzimin</button>
+          </form>
+        </div>
+
+        <div class="card">
+          <h3 th:text="${#lists.size(expenses)} + ' shpenzime · Total: ' + ${#numbers.formatDecimal(totalExpenses,1,2)} + ' €'">Shpenzimet</h3>
+          <table th:if="${not #lists.isEmpty(expenses)}">
+            <thead><tr><th>Data</th><th>Kategoria</th><th>Shuma</th><th>Metoda</th><th></th></tr></thead>
+            <tbody>
+              <tr th:each="e : ${expenses}">
+                <td th:text="${#temporals.format(e.date, 'dd.MM.yyyy')}"></td>
+                <td th:text="${e.category}"></td>
+                <td th:text="${#numbers.formatDecimal(e.amount,1,2)} + ' €'"></td>
+                <td th:text="${e.method}"></td>
+                <td>
+                  <form th:action="@{'/expenses/' + ${e.id} + '/delete'}" method="post" style="display:inline;" onsubmit="return confirm('Të fshihet ky shpenzim?');">
+                    <button class="tiny-x" type="submit">✕</button>
+                  </form>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+          <div class="empty" th:if="${#lists.isEmpty(expenses)}"><div class="ic">&#9662;</div>Nuk ka shpenzime të regjistruara ende.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</body>
+</html>

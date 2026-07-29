@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <th:block th:replace="~{fragments/common :: assets}"></th:block>
+  <title th:text="${reservation.reservationNumber} + ' — Pallati i Dasmave'">Rezervimi</title>
+</head>
+<body>
+<div id="appShell">
+  <div th:replace="~{fragments/common :: sidebar('reservations')}"></div>
+  <div class="main">
+    <div class="topbar no-print">
+      <div><h2 th:text="${reservation.customerFirstName} + ' ' + ${reservation.customerLastName}"></h2>
+        <div class="sub" th:text="'Rezervimi ' + ${reservation.reservationNumber}"></div>
+      </div>
+      <div class="topbar-actions">
+        <a class="btn btn-ghost btn-sm" th:href="@{/reservations}">← Të Gjitha Rezervimet</a>
+        <a class="btn btn-gold btn-sm" th:href="@{'/reservations/' + ${reservation.id} + '/document'}" target="_blank">📄 Dokumenti i Rezervimit</a>
+      </div>
+    </div>
+    <div class="content">
+      <div th:replace="~{fragments/common :: alerts}"></div>
+
+      <div class="grid g2" style="align-items:start;">
+        <div>
+          <!-- Te dhenat e eventit -->
+          <div class="card" style="margin-bottom:16px;">
+            <div style="display:flex;justify-content:space-between;align-items:flex-start;">
+              <div>
+                <div style="font-size:13px;color:var(--text-dim);" th:text="${reservation.customerPhone ?: '—'}"></div>
+              </div>
+              <form th:action="@{'/reservations/' + ${reservation.id} + '/status'}" method="post" onchange="this.submit()">
+                <select name="status" style="padding:6px 10px;border:1px solid var(--line);border-radius:5px;font-size:12.5px;font-weight:600;">
+                  <option th:each="s : ${statuses}" th:value="${s}" th:selected="${s == reservation.status}" th:text="${s}"></option>
+                </select>
+              </form>
+            </div>
+            <table style="margin-top:16px;">
+              <tr><td>Lloji i Eventit</td><td style="text-align:right;font-weight:600;" th:text="${reservation.eventType}"></td></tr>
+              <tr><td>Salla</td><td style="text-align:right;font-weight:600;" th:text="${reservation.hall != null ? reservation.hall.name : '—'}"></td></tr>
+              <tr><td>Data / Ora</td><td style="text-align:right;font-weight:600;" th:text="${#temporals.format(reservation.eventDate, 'dd.MM.yyyy')} + (${reservation.eventTime} != null ? ', ' + ${#temporals.format(reservation.eventTime, 'HH:mm')} : '')"></td></tr>
+              <tr><td>Numri i Mysafirëve</td><td style="text-align:right;font-weight:600;" th:text="${reservation.guests}"></td></tr>
+              <tr><td>Menuja</td><td style="text-align:right;font-weight:600;" th:text="${reservation.menuNameSnapshot ?: '—'}"></td></tr>
+            </table>
+            <div class="form-hint" style="margin-top:10px;" th:if="${reservation.notes}"><b>Shënime:</b> <span th:text="${reservation.notes}"></span></div>
+            <a class="btn btn-ghost btn-sm" style="margin-top:14px;" th:href="@{'/reservations/' + ${reservation.id} + '/edit'}">Ndrysho të Dhënat e Eventit</a>
+          </div>
+
+          <!-- Sherbime shtese -->
+          <div class="card" style="margin-bottom:16px;">
+            <div style="display:flex;justify-content:space-between;align-items:center;">
+              <h3 style="margin:0;">Shërbime Shtesë</h3>
+            </div>
+            <table style="margin-top:10px;" th:if="${not #lists.isEmpty(reservation.services)}">
+              <tbody>
+                <tr th:each="s : ${reservation.services}">
+                  <td th:text="${s.name}"></td>
+                  <td style="text-align:right;" th:text="${#numbers.formatDecimal(s.price,1,2)} + ' €'"></td>
+                  <td style="width:30px;text-align:right;">
+                    <form th:action="@{'/reservations/' + ${reservation.id} + '/services/' + ${s.id} + '/delete'}" method="post" style="display:inline;">
+                      <button class="tiny-x" type="submit">✕</button>
+                    </form>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+            <div class="form-hint" style="margin-top:8px;" th:if="${#lists.isEmpty(reservation.services)}">Nuk ka shërbime shtesë të shtuara.</div>
+
+            <form th:action="@{'/reservations/' + ${reservation.id} + '/services/add'}" method="post" style="margin-top:14px;padding-top:14px;border-top:1px dashed var(--line);">
+              <div class="row">
+                <div class="field" style="margin-bottom:0;"><input type="text" name="name" placeholder="Emri i shërbimit (p.sh. Dekorim)" required="required"/></div>
+                <div class="field" style="margin-bottom:0;max-width:140px;"><input type="number" step="0.01" min="0" name="price" placeholder="Çmimi €" required="required"/></div>
+                <button class="btn btn-ghost btn-sm" type="submit">+ Shto</button>
+              </div>
+            </form>
+          </div>
+
+          <!-- Pagesat -->
+          <div class="card">
+            <h3 style="margin:0 0 10px;">Pagesat</h3>
+            <table th:if="${not #lists.isEmpty(reservation.payments)}">
+              <thead><tr><th>Data</th><th>Shuma</th><th>Metoda</th><th>Përshkrimi</th><th></th></tr></thead>
+              <tbody>
+                <tr th:each="p : ${reservation.payments}">
+                  <td th:text="${#temporals.format(p.date, 'dd.MM.yyyy')}"></td>
+                  <td th:text="${#numbers.formatDecimal(p.amount,1,2)} + ' €'"></td>
+                  <td th:text="${p.method}"></td>
+                  <td th:text="${p.description ?: '—'}"></td>
+                  <td>
+                    <form th:action="@{'/reservations/' + ${reservation.id} + '/payments/' + ${p.id} + '/delete'}" method="post" style="display:inline;">
+                      <button class="tiny-x" type="submit">✕</button>
+                    </form>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+            <div class="form-hint" style="margin-top:8px;" th:if="${#lists.isEmpty(reservation.payments)}">Nuk ka pagesa të regjistruara ende.</div>
+
+            <form th:action="@{'/reservations/' + ${reservation.id} + '/payments/add'}" method="post" style="margin-top:14px;padding-top:14px;border-top:1px dashed var(--line);">
+              <div class="form-hint" style="margin-bottom:10px;">Mbetja aktuale: <b th:text="${#numbers.formatDecimal(reservation.remainingBalance,1,2)} + ' €'"></b></div>
+              <div class="row">
+                <div class="field"><label>Data</label><input type="date" name="date" th:value="${today}" required="required"/></div>
+                <div class="field"><label>Shuma (€)</label><input type="number" step="0.01" min="0" name="amount" required="required"/></div>
+                <div class="field"><label>Metoda</label>
+                  <select name="method">
+                    <option th:each="m : ${paymentMethods}" th:value="${m}" th:text="${m}"></option>
+                  </select>
+                </div>
+              </div>
+              <div class="field"><label>Përshkrimi</label><input type="text" name="description" placeholder="p.sh. Paradhënie, Këst i dytë..."/></div>
+              <label class="checkbox-row"><input type="checkbox" name="confirmOverpay" value="true"/> Konfirmo tejkalimin e mbetjes (nëse aplikohet)</label>
+              <button class="btn btn-primary" type="submit">Ruaj Pagesën</button>
+            </form>
+          </div>
+        </div>
+
+        <div>
+          <!-- Permbledhja financiare -->
+          <div class="card" style="margin-bottom:16px;">
+            <h3>Përmbledhja Financiare</h3>
+            <div class="summary-box">
+              <div class="summary-row"><span th:text="'Çmimi bazë (' + ${reservation.guests} + ' × ' + ${#numbers.formatDecimal(reservation.menuPricePerGuestSnapshot ?: 0,1,2)} + ' €)'"></span><span th:text="${#numbers.formatDecimal(reservation.basePrice,1,2)} + ' €'"></span></div>
+              <div class="summary-row"><span>Shërbime shtesë</span><span th:text="${#numbers.formatDecimal(reservation.servicesTotal,1,2)} + ' €'"></span></div>
+              <div class="summary-row"><span>Zbritje</span><span th:text="'− ' + ${#numbers.formatDecimal(reservation.discount,1,2)} + ' €'"></span></div>
+              <div class="summary-row total"><span>Çmimi Total</span><span th:text="${#numbers.formatDecimal(reservation.totalPrice,1,2)} + ' €'"></span></div>
+              <div class="summary-row"><span>E paguar</span><span th:text="${#numbers.formatDecimal(reservation.paidAmount,1,2)} + ' €'"></span></div>
+              <div class="summary-row" style="font-weight:700;color:var(--bad);"><span>Mbetet për pagesë</span><span th:text="${#numbers.formatDecimal(reservation.remainingBalance,1,2)} + ' €'"></span></div>
+            </div>
+            <div style="margin-top:12px;">
+              <span class="badge" th:classappend="${reservation.paymentStatus == 'E paguar plotesisht' ? 'badge-paid' : (reservation.paymentStatus == 'Pjeserisht e paguar' ? 'badge-partial' : 'badge-unpaid')}" th:text="${reservation.paymentStatus}"></span>
+              <span class="badge" th:classappend="'badge-' + ${reservation.status}" th:text="${reservation.status}"></span>
+            </div>
+            <form th:action="@{'/reservations/' + ${reservation.id} + '/discount'}" method="post" style="margin-top:14px;padding-top:14px;border-top:1px dashed var(--line);display:flex;gap:8px;align-items:flex-end;">
+              <div class="field" style="margin-bottom:0;flex:1;"><label>Ndrysho Zbritjen (€)</label><input type="number" step="0.01" min="0" name="discount" th:value="${reservation.discount}"/></div>
+              <button class="btn btn-ghost btn-sm" type="submit">Ruaj</button>
+            </form>
+          </div>
+
+          <!-- Menuja -->
+          <div class="card" th:if="${reservation.menuNameSnapshot != null}">
+            <h3 th:text="'Menuja: ' + ${reservation.menuNameSnapshot}"></h3>
+            <div class="form-hint" th:text="${reservation.menuDescriptionSnapshot}"></div>
+            <div class="section-label" style="margin-top:14px;">Ushqime</div>
+            <div style="font-size:13px;" th:text="${#strings.listJoin(reservation.menuFoodsSnapshot, ', ')}"></div>
+            <div class="section-label">Pije</div>
+            <div style="font-size:13px;" th:text="${#strings.listJoin(reservation.menuBeveragesSnapshot, ', ')}"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</body>
+</html>

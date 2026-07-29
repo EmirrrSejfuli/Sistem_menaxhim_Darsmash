@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <th:block th:replace="~{fragments/common :: assets}"></th:block>
+  <title>Kushtet e Rezervimit — Pallati i Dasmave</title>
+</head>
+<body>
+<div id="appShell">
+  <div th:replace="~{fragments/common :: sidebar('settings')}"></div>
+  <div class="main">
+    <div class="topbar no-print">
+      <div><h2>Cilësimet</h2><div class="sub">Profili i biznesit, kushtet dhe fjalëkalimi</div></div>
+    </div>
+    <div class="content">
+      <div th:replace="~{fragments/common :: alerts}"></div>
+
+      <div class="tabs no-print">
+        <a class="tab" th:href="@{/settings/profile}">Profili i Biznesit</a>
+        <a class="tab active" th:href="@{/settings/terms}">Kushtet e Rezervimit</a>
+        <a class="tab" th:href="@{/settings/password}">Fjalëkalimi</a>
+      </div>
+
+      <div class="card" style="max-width:640px;">
+        <form th:action="@{/settings/terms}" method="post">
+          <div class="field">
+            <label>Kushtet e Rezervimit (do të shfaqen automatikisht në çdo dokument rezervimi)</label>
+            <textarea name="terms" rows="10" th:text="${settings.terms}"></textarea>
+          </div>
+          <button class="btn btn-primary" type="submit">Ruaj Kushtet</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+</body>
+</html>

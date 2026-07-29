@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <th:block th:replace="~{fragments/common :: assets}"></th:block>
+  <title th:text="'Dokumenti i Rezervimit ' + ${reservation.reservationNumber}">Dokumenti</title>
+</head>
+<body>
+<div class="topbar no-print" style="display:flex;justify-content:flex-end;gap:8px;padding:14px 20px;">
+  <a class="btn btn-ghost btn-sm" th:href="@{'/reservations/' + ${reservation.id}}">← Kthehu</a>
+  <button class="btn btn-gold btn-sm" onclick="window.print()">🖶 Printo / Ruaj si PDF</button>
+</div>
+<div class="content" style="padding:20px;">
+  <div class="doc-sheet">
+    <div class="doc-head">
+      <div>
+        <div class="bn" th:text="${settings.businessName}"></div>
+        <div style="font-size:12.5px;color:var(--text-dim);margin-top:4px;">
+          <span th:text="${settings.address}"></span><br/>
+          <span th:text="${settings.phone}"></span> · <span th:text="${settings.email}"></span>
+        </div>
+      </div>
+      <div class="num">
+        <div style="font-size:11px;text-transform:uppercase;letter-spacing:.05em;">Dokumenti i Rezervimit</div>
+        <div style="font-family:'Fraunces',serif;font-size:20px;color:var(--wine);" th:text="${reservation.reservationNumber}"></div>
+        <div th:text="'Data e krijimit: ' + ${#temporals.format(reservation.createdAt, 'dd.MM.yyyy')}"></div>
+      </div>
+    </div>
+
+    <div class="doc-grid">
+      <div class="doc-block">
+        <h4>Të Dhënat e Klientit</h4>
+        <p><b th:text="${reservation.customerFirstName} + ' ' + ${reservation.customerLastName}"></b></p>
+        <p th:text="'Tel: ' + (${reservation.customerPhone} ?: '—')"></p>
+      </div>
+      <div class="doc-block">
+        <h4>Të Dhënat e Eventit</h4>
+        <p th:text="'Lloji: ' + ${reservation.eventType}"></p>
+        <p th:text="'Salla: ' + (${reservation.hall != null ? reservation.hall.name : '—'})"></p>
+        <p th:text="'Data / Ora: ' + ${#temporals.format(reservation.eventDate, 'dd.MM.yyyy')} + (${reservation.eventTime} != null ? ', ' + ${#temporals.format(reservation.eventTime, 'HH:mm')} : '')"></p>
+        <p th:text="'Numri i Mysafirëve: ' + ${reservation.guests}"></p>
+      </div>
+    </div>
+
+    <div class="doc-block" style="margin-bottom:18px;" th:if="${reservation.menuNameSnapshot != null}">
+      <h4 th:text="'Menuja e Zgjedhur — ' + ${reservation.menuNameSnapshot}"></h4>
+      <p th:text="${reservation.menuDescriptionSnapshot}"></p>
+      <p style="font-size:12.5px;color:var(--text-dim);" th:text="'Ushqime: ' + ${#strings.listJoin(reservation.menuFoodsSnapshot, ', ')}"></p>
+      <p style="font-size:12.5px;color:var(--text-dim);" th:text="'Pije: ' + ${#strings.listJoin(reservation.menuBeveragesSnapshot, ', ')}"></p>
+    </div>
+
+    <div class="doc-block" style="margin-bottom:18px;" th:if="${not #lists.isEmpty(reservation.services)}">
+      <h4>Shërbime Shtesë</h4>
+      <p th:each="sv : ${reservation.services}" th:text="${sv.name} + ' — ' + ${#numbers.formatDecimal(sv.price,1,2)} + ' €'"></p>
+    </div>
+
+    <div class="doc-block" style="margin-bottom:18px;">
+      <h4>Përmbledhja Financiare</h4>
+      <div class="summary-box">
+        <div class="summary-row"><span>Çmimi bazë</span><span th:text="${#numbers.formatDecimal(reservation.basePrice,1,2)} + ' €'"></span></div>
+        <div class="summary-row"><span>Shërbime shtesë</span><span th:text="${#numbers.formatDecimal(reservation.servicesTotal,1,2)} + ' €'"></span></div>
+        <div class="summary-row"><span>Zbritje</span><span th:text="'− ' + ${#numbers.formatDecimal(reservation.discount,1,2)} + ' €'"></span></div>
+        <div class="summary-row total"><span>Çmimi Total</span><span th:text="${#numbers.formatDecimal(reservation.totalPrice,1,2)} + ' €'"></span></div>
+        <div class="summary-row"><span>E Paguar</span><span th:text="${#numbers.formatDecimal(reservation.paidAmount,1,2)} + ' €'"></span></div>
+        <div class="summary-row" style="font-weight:700;"><span>Mbetja</span><span th:text="${#numbers.formatDecimal(reservation.remainingBalance,1,2)} + ' €'"></span></div>
+      </div>
+    </div>
+
+    <div class="doc-block" style="margin-bottom:18px;" th:if="${reservation.notes}">
+      <h4>Shënime Speciale</h4>
+      <p th:text="${reservation.notes}"></p>
+    </div>
+
+    <div class="doc-block">
+      <h4>Kushtet e Rezervimit</h4>
+      <p style="white-space:pre-line;font-size:12.5px;color:var(--text-dim);line-height:1.6;" th:text="${settings.terms}"></p>
+    </div>
+
+    <div class="sig-row">
+      <div class="sig-line">Nënshkrimi i Klientit</div>
+      <div class="sig-line">Nënshkrimi i Përfaqësuesit të Sallës</div>
+    </div>
+  </div>
+</div>
+</body>
+</html>

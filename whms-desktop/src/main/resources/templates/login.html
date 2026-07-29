@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <th:block th:replace="~{fragments/common :: assets}"></th:block>
+  <title>Kyçu — Pallati i Dasmave</title>
+</head>
+<body>
+<div id="loginScreen">
+  <div class="login-card">
+    <div class="seal"></div>
+    <h1></h1>
+    <div class="login-sub">Sistemi i Menaxhimit të Sallave — Kyçu për të vazhduar</div>
+
+    <form th:action="@{/login}" method="post">
+      <div class="field">
+        <label>Emri i përdoruesit</label>
+        <input type="text" name="username" placeholder="Emri i përdoruesit" autocomplete="username" autofocus="autofocus"/>
+      </div>
+      <div class="field">
+        <label>Fjalëkalimi</label>
+        <input type="password" name="password" placeholder="••••••••" autocomplete="current-password"/>
+      </div>
+      <button class="btn btn-primary btn-block" type="submit">Kyçu</button>
+
+      <div class="login-err" th:if="${param.error}">Emri i përdoruesit ose fjalëkalimi është i gabuar.</div>
+      <div class="login-err" style="color:var(--ok);" th:if="${param.logout}">Dolët me sukses nga sistemi.</div>
+    </form>
+  </div>
+</div>
+</body>
+</html>

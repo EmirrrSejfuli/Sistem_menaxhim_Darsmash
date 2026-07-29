@@ -1,0 +1,7 @@
+target/
+whms-data/
+*.exe
+.idea/
+*.iml
+*.log
+.DS_Store
